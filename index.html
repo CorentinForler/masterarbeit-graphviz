@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset=utf-8 />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cytoscape</title>
+    <!-- polyfills so the demo works on old browsers, like IE -->
+    <script src="vendor/classList.min.js"></script> <!-- https://cdnjs.cloudflare.com/ajax/libs/classlist/1.2.20171210/classList.min.js -->
+    <script src="vendor/bluebird.js"></script> <!-- https://unpkg.com/bluebird@3.5.2/js/browser/bluebird.js -->
+    <script src="vendor/fetch.umd.js"></script> <!-- https://unpkg.com/whatwg-fetch@3.0.0/dist/fetch.umd.js -->
+
+    <!-- libs used by demo -->
+    <script src="vendor/lodash.min.js"></script> <!-- https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js -->
+    <script src="vendor/cola.min.js"></script> <!-- https://unpkg.com/webcola/WebCola/cola.min.js -->
+    <script src="vendor/popper.js"></script> <!-- https://unpkg.com/popper.js/dist/umd/popper.js -->
+    <script src="vendor/tippy.all.js"></script> <!-- https://unpkg.com/tippy.js@2.6.0/dist/tippy.all.js -->
+
+    <!-- cy libs -->
+    <script src="vendor/cytoscape.min.js"></script>
+    <script src="vendor/cytoscape-cola.js"></script> <!-- https://unpkg.com/cytoscape-cola/cytoscape-cola.js -->
+    <script src="vendor/cytoscape-popper.js"></script> <!-- https://unpkg.com/cytoscape-popper/cytoscape-popper.js -->
+
+    <script src="vendor/layout-base.js"></script> <!-- https://unpkg.com/layout-base/layout-base.js -->
+    <script src="vendor/cose-base.js"></script> <!-- https://unpkg.com/cose-base/cose-base.js -->
+    <script src="vendor/avsdf-base.js"></script> <!-- https://unpkg.com/avsdf-base/avsdf-base.js -->
+    <script src="vendor/cytoscape-avsdf.js"></script> <!-- https://unpkg.com/cytoscape-avsdf/cytoscape-avsdf.js -->
+    <script src="vendor/cytoscape-cose-bilkent.js"></script> <!-- https://unpkg.com/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js -->
+
+    <link href="vendor/nouislider.min.css" rel="stylesheet" />
+    <script src="vendor/nouislider.min.js"></script>
+
+    <link href="vendor/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <script src="vendor/bootstrap/bootstrap.min.js"></script>
+
+    <script src="vendor/fontawesome/js/solid.min.js"></script>
+    <!-- <script src="vendor/fontawesome/js/regular.min.js"></script> -->
+    <script src="vendor/fontawesome/js/fontawesome.min.js"></script>
+
+    <!-- <script src="https://api.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"></script> -->
+    <!-- <link href="https://api.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.css" rel="stylesheet"> -->
+    <!-- <script src="https://unpkg.com/cytoscape-mapbox-gl@1.2.0/dist/cytoscape-mapbox-gl.min.js"></script> -->
+    <!-- <script src="vendor/cytoscape-mapbox-gl/dist/cytoscape-mapbox-gl.js"></script> -->
+
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="vendor/leaflet-geometryutil/leaflet.geometryutil.js"></script>
+    <script src="vendor/cytoscape-leaflet/dist/cytoscape-leaflet.js"></script>
+
+    <!-- demo src-->
+    <link href="style.css" rel="stylesheet" />
+    <script type="module" src="main.js"></script>
+  </head>
+
+  <body class="app">
+    <main class="app--full">
+      <div id="cy"></div>
+    </main>
+
+    <div class="app--full app--overlay graph-overlay">
+      <div id="app-filter-panel" class="app-panel">
+        <div class="app-panel-content__open filters-container">
+          <header class="app-panel-header">
+            <h4>
+              <i class="fas fa-filter"></i>
+              Filtres
+            </h4>
+            <button type="button" class="btn btn-link text-secondary app-panel-btn__close" style="text-decoration: none; position: absolute; top: 0; right: 0;">
+              Close
+              <i class="fas fa-times"></i>
+            </button>
+          </header>
+          <label>
+            Filtrage par texte :
+            <input type="text" id="text-filter" />
+          </label>
+          <label>
+            Filtrage par pays :
+            <input type="text" id="country-filter" />
+          </label>
+          <label>
+            Filtrage par ville :
+            <input type="text" id="city-filter" />
+          </label>
+          <label>
+            Filtrage par adresse complète :
+            <input type="text" id="address-filter" />
+          </label>
+        </div>
+        <div class="app-panel-content_closed">
+          <button type="button" class="btn btn-link text-primary text-center app-panel-btn__open" style="text-decoration: none;">
+            <i class="fas fa-filter"></i>
+            Filters
+          </button>
+        </div>
+      </div>
+      <div>
+        <div class="btn-group" id="current-view-type-btn-group" role="group" aria-label="Current view style">
+          <input type="radio" class="btn-check" name="current-view-type" id="current-view-btn-map" data-view-type="map" autocomplete="off" checked />
+          <label class="btn btn-outline-primary" for="current-view-btn-map">
+            <i class="fa fa-map" alt="Show Map View"></i>
+            Map
+          </label>
+          <input type="radio" class="btn-check" name="current-view-type" id="current-view-btn-graph" data-view-type="graph" autocomplete="off" />
+          <label class="btn btn-outline-primary" for="current-view-btn-graph">
+            <i class="fa fa-share-alt" alt="Show Graph View"></i>
+            Graph
+          </label>
+        </div>
+      </div>
+
+      <div style="margin: auto;"></div>
+
+      <aside id="app-info-panel" class="app-panel">
+        <div class="app-panel-content__open">
+          <header class="app-panel-header">
+            <h4>
+              <i class="fas fa-search"></i>
+              Détails
+            </h4>
+            <button type="button" class="btn btn-link text-secondary app-panel-btn__close" style="text-decoration: none; position: absolute; top: 0; right: 0;">
+              Fermer
+              <i class="fas fa-times"></i>
+            </button>
+          </header>
+          <div class="app-scrollable">
+            <div id="app-info-panel-contents"></div>
+          </div>
+        </div>
+        <div class="app-panel-content__closed">
+          <button type="button" class="btn btn-link text-primary text-center app-panel-btn__open" style="text-decoration: none;">
+            <i class="fas fa-search"></i>
+            Détails
+          </button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- <div class="app--right config-container config-closed">
+      <div class="config-toggle" id="config-toggle">
+        <i class="fa fa-bars"></i>
+      </div>
+      <div id="config" class="config">
+        <div class="preamble">
+          <span class="label label-info">Cytoscape.js test</span>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="app--bottom timeline-filter-container">
+      <div id="timeline-filter"></div>
+    </div>
+  </body>
+
+</html>
